@@ -84,10 +84,8 @@ func main() {
 	formattedResult := parseResults(results)
 
 	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
-	fmt.Printf("%s: %s\n",
-		formattedResult.Data.Parameters.Temperatures[0].Name,
-		formattedResult.Data.Parameters.Temperatures[0].Value)
-	fmt.Printf("%s: %s\n",
-		formattedResult.Data.Parameters.Temperatures[1].Name,
-		formattedResult.Data.Parameters.Temperatures[1].Value)
+
+	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
+		fmt.Printf("%s: %s\n", temperature.Name, temperature.Value)
+	}
 }
