@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -34,6 +35,10 @@ func callService(fr forecastRequest) string {
 	return fmt.Sprintf("%s", results)
 }
 
+func parseResults(results string) {
+	//TODO
+}
+
 func main() {
 	fr := forecastRequest{
 		Latitude:  39.44,
@@ -46,5 +51,7 @@ func main() {
 
 	results := callService(fr)
 
-	fmt.Printf("%s", results)
+	// fmt.Printf("%s", results)
+
+	parseResults(results)
 }
