@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "encoding/xml"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,6 +11,32 @@ import (
 type forecastRequest struct {
 	Latitude, Longitude             float32
 	Product, Begin, End, MaxT, MinT string
+}
+
+type dwml struct {
+	Head struct {
+		Product struct {
+			OperationalMode string `xml:"operational-mode,attr"`
+			Title           string `xml:"title"`
+			Category        string `xml:"category"`
+		} `xml:"product"`
+	} `xml:"head"`
+	Data struct {
+		Location struct {
+			LocationKey string `xml:"location-key"`
+			Point       struct {
+				Latitude  string `xml:"latitude,attr"`
+				Longitude string `xml:"longitude,attr"`
+			} `xml:"point"`
+		} `xml:"location"`
+		Parameters struct {
+			ApplicableLocation string `xml:"applicable-location,attr"`
+			Temperatures       []struct {
+				Name  string `xml:"name"`
+				Value string `xml:"value"`
+			} `xml:"temperature"`
+		} `xml:"parameters"`
+	} `xml:"data"`
 }
 
 func callService(fr forecastRequest) string {
@@ -35,8 +61,12 @@ func callService(fr forecastRequest) string {
 	return fmt.Sprintf("%s", results)
 }
 
-func parseResults(results string) {
-	//TODO
+func parseResults(inputXML string) dwml {
+	var result dwml
+
+	xml.Unmarshal([]byte(inputXML), &result)
+
+	return result
 }
 
 func main() {
@@ -51,7 +81,13 @@ func main() {
 
 	results := callService(fr)
 
-	// fmt.Printf("%s", results)
+	formattedResult := parseResults(results)
 
-	parseResults(results)
+	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
+	fmt.Printf("%s: %s\n",
+		formattedResult.Data.Parameters.Temperatures[0].Name,
+		formattedResult.Data.Parameters.Temperatures[0].Value)
+	fmt.Printf("%s: %s\n",
+		formattedResult.Data.Parameters.Temperatures[1].Name,
+		formattedResult.Data.Parameters.Temperatures[1].Value)
 }
