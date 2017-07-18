@@ -3,6 +3,7 @@ EXE=noaa-client
 
 default:
 	@echo 'Targets:'
+	@echo ' run'
 	@echo ' build'
 	@echo ' analyze'
 	@echo ' format'
