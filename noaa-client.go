@@ -69,13 +69,21 @@ func parseResults(inputXML string) dwml {
 	return result
 }
 
+func displayResults(formattedResult dwml) {
+	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
+
+	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
+		fmt.Printf("%s: %s\n", temperature.Name, temperature.Value)
+	}
+}
+
 func main() {
 	fr := forecastRequest{
 		Latitude:  39.44,
 		Longitude: -84.3,
 		Product:   "time-series",
-		Begin:     "2017-07-18T00:00:00",
-		End:       "2017-07-18T20:00:00",
+		Begin:     "2017-07-19T00:00:00",
+		End:       "2017-07-19T20:00:00",
 		MaxT:      "maxt",
 		MinT:      "mint"}
 
@@ -83,9 +91,5 @@ func main() {
 
 	formattedResult := parseResults(results)
 
-	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
-
-	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
-		fmt.Printf("%s: %s\n", temperature.Name, temperature.Value)
-	}
+	displayResults(formattedResult)
 }
