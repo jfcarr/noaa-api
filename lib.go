@@ -9,8 +9,9 @@ import (
 )
 
 type forecastRequest struct {
-	Latitude, Longitude             float32
-	Product, Begin, End, MaxT, MinT string
+	Latitude, Longitude                                           float32
+	Product, Begin, End                                           string
+	MaxTemperature, MinTemperature, ProbabilityOfPrecip, SkyCover string
 }
 
 type dwml struct {
@@ -40,8 +41,8 @@ type dwml struct {
 }
 
 func callService(fr forecastRequest) string {
-	queryString := fmt.Sprintf("lat=%f&lon=%f&product=%s&begin=%s&end=%s&maxt=%s&mint=%s",
-		fr.Latitude, fr.Longitude, fr.Product, fr.Begin, fr.End, fr.MaxT, fr.MinT)
+	queryString := fmt.Sprintf("lat=%f&lon=%f&product=%s&begin=%s&end=%s&maxt=%s&mint=%s&pop12=%s&sky=%s",
+		fr.Latitude, fr.Longitude, fr.Product, fr.Begin, fr.End, fr.MaxTemperature, fr.MinTemperature, fr.ProbabilityOfPrecip, fr.SkyCover)
 
 	requestString := fmt.Sprintf("%s?%s",
 		"http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php",
