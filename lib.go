@@ -33,8 +33,8 @@ type dwml struct {
 		Parameters struct {
 			ApplicableLocation string `xml:"applicable-location,attr"`
 			Temperatures       []struct {
-				Name  string `xml:"name"`
-				Value string `xml:"value"`
+				Name  string   `xml:"name"`
+				Value []string `xml:"value"`
 			} `xml:"temperature"`
 		} `xml:"parameters"`
 	} `xml:"data"`
@@ -74,6 +74,9 @@ func displayResults(formattedResult dwml) {
 	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
 
 	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
-		fmt.Printf("%s: %s\n", temperature.Name, temperature.Value)
+		fmt.Printf("%s:\n", temperature.Name)
+		for _, tempValue := range temperature.Value {
+			fmt.Printf(" Value: %s\n", tempValue)
+		}
 	}
 }
