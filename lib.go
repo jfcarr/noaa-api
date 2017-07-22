@@ -31,9 +31,9 @@ type dwml struct {
 			} `xml:"point"`
 		} `xml:"location"`
 		TimeLayouts []struct {
-			LayoutKey      string   `xml:"layout-key"`
-			StartValidTime []string `xml:"start-valid-time"`
-			EndValidTime   []string `xml:"end-valid-time"`
+			LayoutKey       string   `xml:"layout-key"`
+			StartValidTimes []string `xml:"start-valid-time"`
+			EndValidTimes   []string `xml:"end-valid-time"`
 		} `xml:"time-layout"`
 		Parameters struct {
 			ApplicableLocation string `xml:"applicable-location,attr"`
@@ -42,21 +42,21 @@ type dwml struct {
 				Units      string   `xml:"units,attr"`
 				TimeLayout string   `xml:"time-layout,attr"`
 				Name       string   `xml:"name"`
-				Value      []string `xml:"value"`
+				Values     []string `xml:"value"`
 			} `xml:"temperature"`
 			ProbabilityOfPrecip struct {
 				Type       string   `xml:"type,attr"`
 				Units      string   `xml:"units,attr"`
 				TimeLayout string   `xml:"time-layout,attr"`
 				Name       string   `xml:"name"`
-				Value      []string `xml:"value"`
+				Values     []string `xml:"value"`
 			} `xml:"probability-of-precipitation"`
 			CloudCoverAmount struct {
 				Type       string   `xml:"type,attr"`
 				Units      string   `xml:"units,attr"`
 				TimeLayout string   `xml:"time-layout,attr"`
 				Name       string   `xml:"name"`
-				Value      []string `xml:"value"`
+				Values     []string `xml:"value"`
 			} `xml:"cloud-amount"`
 		} `xml:"parameters"`
 	} `xml:"data"`
@@ -101,22 +101,22 @@ func displayResults(formattedResult dwml) {
 		startStopTimes := make(map[int]string)
 
 		var currentOffset int
-		for _, startTime := range timeLayout.StartValidTime {
+		for _, startTime := range timeLayout.StartValidTimes {
 			// fmt.Printf("Start: %s\n", startTime)
 			startStopTimes[currentOffset] = startTime
 			currentOffset = currentOffset + 1
 		}
 
 		currentOffset = 0
-		for _, endTime := range timeLayout.EndValidTime {
+		for _, endTime := range timeLayout.EndValidTimes {
 			// fmt.Printf("End: %s\n", endTime)
 			startStopTimes[currentOffset] = fmt.Sprintf("%s - %s", startStopTimes[currentOffset], endTime)
 			currentOffset = currentOffset + 1
 		}
 
-		startStopTimeList := timeLayout.StartValidTime
+		startStopTimeList := timeLayout.StartValidTimes
 		currentOffset = 0
-		for _, endTime := range timeLayout.EndValidTime {
+		for _, endTime := range timeLayout.EndValidTimes {
 			startStopTimeList[currentOffset] = fmt.Sprintf("%s - %s", startStopTimeList[currentOffset], endTime)
 			currentOffset++
 		}
@@ -130,7 +130,7 @@ func displayResults(formattedResult dwml) {
 
 	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
 		fmt.Printf("%s (%s):\n", temperature.Name, temperature.TimeLayout)
-		for _, tempValue := range temperature.Value {
+		for _, tempValue := range temperature.Values {
 			fmt.Printf(" Value: %s\n", tempValue)
 		}
 	}
@@ -139,7 +139,7 @@ func displayResults(formattedResult dwml) {
 
 	probabilityOfPrecip := formattedResult.Data.Parameters.ProbabilityOfPrecip
 	fmt.Printf("%s (%s):\n", probabilityOfPrecip.Name, probabilityOfPrecip.TimeLayout)
-	for _, popValue := range probabilityOfPrecip.Value {
+	for _, popValue := range probabilityOfPrecip.Values {
 		fmt.Printf(" Value: %s\n", popValue)
 	}
 
@@ -147,7 +147,7 @@ func displayResults(formattedResult dwml) {
 
 	cloudCover := formattedResult.Data.Parameters.CloudCoverAmount
 	fmt.Printf("%s (%s):\n", cloudCover.Name, cloudCover.TimeLayout)
-	for _, cloudValue := range cloudCover.Value {
+	for _, cloudValue := range cloudCover.Values {
 		fmt.Printf(" Value: %s\n", cloudValue)
 	}
 }
