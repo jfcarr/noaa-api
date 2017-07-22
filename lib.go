@@ -92,46 +92,49 @@ func parseResults(inputXML string) dwml {
 	return result
 }
 
-func displayResults(formattedResult dwml) {
-	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
+func getStartStop(formattedResult dwml, layoutKey string, offset int) (string, string) {
+	var returnStart string
+	var returnEnd string
+
+	var currentOffset int
 
 	for _, timeLayout := range formattedResult.Data.TimeLayouts {
-		fmt.Printf("\nKey: %s\n", timeLayout.LayoutKey)
-
-		startStopTimes := make(map[int]string)
-
-		var currentOffset int
-		for _, startTime := range timeLayout.StartValidTimes {
-			// fmt.Printf("Start: %s\n", startTime)
-			startStopTimes[currentOffset] = startTime
-			currentOffset = currentOffset + 1
-		}
-
-		currentOffset = 0
-		for _, endTime := range timeLayout.EndValidTimes {
-			// fmt.Printf("End: %s\n", endTime)
-			startStopTimes[currentOffset] = fmt.Sprintf("%s - %s", startStopTimes[currentOffset], endTime)
-			currentOffset = currentOffset + 1
-		}
-
-		startStopTimeList := timeLayout.StartValidTimes
-		currentOffset = 0
-		for _, endTime := range timeLayout.EndValidTimes {
-			startStopTimeList[currentOffset] = fmt.Sprintf("%s - %s", startStopTimeList[currentOffset], endTime)
-			currentOffset++
-		}
-
-		for _, currentTime := range startStopTimeList {
-			fmt.Printf(" %s\n", currentTime)
+		if timeLayout.LayoutKey == layoutKey {
+			currentOffset = 0
+			for _, startTime := range timeLayout.StartValidTimes {
+				if currentOffset == offset {
+					returnStart = startTime
+					break
+				}
+				currentOffset++
+			}
+			currentOffset = 0
+			for _, endTime := range timeLayout.EndValidTimes {
+				if currentOffset == offset {
+					returnEnd = endTime
+					break
+				}
+				currentOffset++
+			}
 		}
 	}
+	return returnStart, returnEnd
+}
+
+func displayResults(formattedResult dwml) {
+	var currentOffset int
+
+	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
 
 	fmt.Printf("\n")
 
 	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
 		fmt.Printf("%s (%s):\n", temperature.Name, temperature.TimeLayout)
+		currentOffset = 0
 		for _, tempValue := range temperature.Values {
-			fmt.Printf(" Value: %s\n", tempValue)
+			startTime, endTime := getStartStop(formattedResult, temperature.TimeLayout, currentOffset)
+			fmt.Printf(" Value: %s (%s to %s)\n", tempValue, startTime, endTime)
+			currentOffset++
 		}
 	}
 
@@ -139,15 +142,22 @@ func displayResults(formattedResult dwml) {
 
 	probabilityOfPrecip := formattedResult.Data.Parameters.ProbabilityOfPrecip
 	fmt.Printf("%s (%s):\n", probabilityOfPrecip.Name, probabilityOfPrecip.TimeLayout)
+	currentOffset = 0
 	for _, popValue := range probabilityOfPrecip.Values {
-		fmt.Printf(" Value: %s\n", popValue)
+		startTime, endTime := getStartStop(formattedResult, probabilityOfPrecip.TimeLayout, currentOffset)
+		fmt.Printf(" Value: %s (%s to %s)\n", popValue, startTime, endTime)
+		currentOffset++
 	}
 
 	fmt.Printf("\n")
 
 	cloudCover := formattedResult.Data.Parameters.CloudCoverAmount
 	fmt.Printf("%s (%s):\n", cloudCover.Name, cloudCover.TimeLayout)
+	currentOffset = 0
 	for _, cloudValue := range cloudCover.Values {
-		fmt.Printf(" Value: %s\n", cloudValue)
+		startTime, endTime := getStartStop(formattedResult, cloudCover.TimeLayout, currentOffset)
+		_ = endTime // suppress error for the unused endTime
+		fmt.Printf(" Value: %s (%s)\n", cloudValue, startTime)
+		currentOffset++
 	}
 }
