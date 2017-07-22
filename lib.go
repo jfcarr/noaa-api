@@ -30,11 +30,17 @@ type dwml struct {
 				Longitude string `xml:"longitude,attr"`
 			} `xml:"point"`
 		} `xml:"location"`
+		TimeLayouts []struct {
+			LayoutKey      string   `xml:"layout-key"`
+			StartValidTime []string `xml:"start-valid-time"`
+			EndValidTime   []string `xml:"end-valid-time"`
+		} `xml:"time-layout"`
 		Parameters struct {
 			ApplicableLocation string `xml:"applicable-location,attr"`
 			Temperatures       []struct {
-				Name  string   `xml:"name"`
-				Value []string `xml:"value"`
+				TimeLayout string   `xml:"time-layout,attr"`
+				Name       string   `xml:"name"`
+				Value      []string `xml:"value"`
 			} `xml:"temperature"`
 		} `xml:"parameters"`
 	} `xml:"data"`
@@ -73,8 +79,41 @@ func parseResults(inputXML string) dwml {
 func displayResults(formattedResult dwml) {
 	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
 
+	for _, timeLayout := range formattedResult.Data.TimeLayouts {
+		fmt.Printf("\nKey: %s\n", timeLayout.LayoutKey)
+
+		startStopTimes := make(map[int]string)
+
+		var currentOffset int
+		for _, startTime := range timeLayout.StartValidTime {
+			// fmt.Printf("Start: %s\n", startTime)
+			startStopTimes[currentOffset] = startTime
+			currentOffset = currentOffset + 1
+		}
+
+		currentOffset = 0
+		for _, endTime := range timeLayout.EndValidTime {
+			// fmt.Printf("End: %s\n", endTime)
+			startStopTimes[currentOffset] = fmt.Sprintf("%s - %s", startStopTimes[currentOffset], endTime)
+			currentOffset = currentOffset + 1
+		}
+
+		startStopTimeList := timeLayout.StartValidTime
+		currentOffset = 0
+		for _, endTime := range timeLayout.EndValidTime {
+			startStopTimeList[currentOffset] = fmt.Sprintf("%s - %s", startStopTimeList[currentOffset], endTime)
+			currentOffset++
+		}
+
+		for _, currentTime := range startStopTimeList {
+			fmt.Printf("%s\n", currentTime)
+		}
+	}
+
+	fmt.Printf("\n")
+
 	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
-		fmt.Printf("%s:\n", temperature.Name)
+		fmt.Printf("%s (%s):\n", temperature.Name, temperature.TimeLayout)
 		for _, tempValue := range temperature.Value {
 			fmt.Printf(" Value: %s\n", tempValue)
 		}
