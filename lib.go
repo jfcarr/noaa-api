@@ -106,7 +106,7 @@ func displayResults(formattedResult dwml) {
 		}
 
 		for _, currentTime := range startStopTimeList {
-			fmt.Printf("%s\n", currentTime)
+			fmt.Printf(" %s\n", currentTime)
 		}
 	}
 
