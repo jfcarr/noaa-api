@@ -38,10 +38,26 @@ type dwml struct {
 		Parameters struct {
 			ApplicableLocation string `xml:"applicable-location,attr"`
 			Temperatures       []struct {
+				Type       string   `xml:"type,attr"`
+				Units      string   `xml:"units,attr"`
 				TimeLayout string   `xml:"time-layout,attr"`
 				Name       string   `xml:"name"`
 				Value      []string `xml:"value"`
 			} `xml:"temperature"`
+			ProbabilityOfPrecip struct {
+				Type       string   `xml:"type,attr"`
+				Units      string   `xml:"units,attr"`
+				TimeLayout string   `xml:"time-layout,attr"`
+				Name       string   `xml:"name"`
+				Value      []string `xml:"value"`
+			} `xml:"probability-of-precipitation"`
+			CloudCoverAmount struct {
+				Type       string   `xml:"type,attr"`
+				Units      string   `xml:"units,attr"`
+				TimeLayout string   `xml:"time-layout,attr"`
+				Name       string   `xml:"name"`
+				Value      []string `xml:"value"`
+			} `xml:"cloud-amount"`
 		} `xml:"parameters"`
 	} `xml:"data"`
 }
@@ -117,5 +133,21 @@ func displayResults(formattedResult dwml) {
 		for _, tempValue := range temperature.Value {
 			fmt.Printf(" Value: %s\n", tempValue)
 		}
+	}
+
+	fmt.Printf("\n")
+
+	probabilityOfPrecip := formattedResult.Data.Parameters.ProbabilityOfPrecip
+	fmt.Printf("%s (%s):\n", probabilityOfPrecip.Name, probabilityOfPrecip.TimeLayout)
+	for _, popValue := range probabilityOfPrecip.Value {
+		fmt.Printf(" Value: %s\n", popValue)
+	}
+
+	fmt.Printf("\n")
+
+	cloudCover := formattedResult.Data.Parameters.CloudCoverAmount
+	fmt.Printf("%s (%s):\n", cloudCover.Name, cloudCover.TimeLayout)
+	for _, cloudValue := range cloudCover.Value {
+		fmt.Printf(" Value: %s\n", cloudValue)
 	}
 }
