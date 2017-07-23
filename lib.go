@@ -66,13 +66,25 @@ type dwml struct {
 	} `xml:"data"`
 }
 
+func appendCSVString(parentString string, value string) string {
+	if value != "" {
+		if parentString == "" {
+			parentString = value
+		} else {
+			parentString += "," + value
+		}
+	}
+
+	return parentString
+}
+
 func callService(fr forecastRequest) string {
+
 	queryString := fmt.Sprintf("lat=%f&lon=%f&product=%s&begin=%s&end=%s&maxt=%s&mint=%s&pop12=%s&sky=%s",
 		fr.Latitude, fr.Longitude, fr.Product, fr.Begin, fr.End, fr.MaxTemperature, fr.MinTemperature, fr.ProbabilityOfPrecip, fr.SkyCover)
 
 	requestString := fmt.Sprintf("%s?%s",
-		"http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php",
-		queryString)
+		"https://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php", queryString)
 
 	res, err := http.Get(requestString)
 	if err != nil {
