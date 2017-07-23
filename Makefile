@@ -15,7 +15,7 @@ run: build
 
 build: $(EXE)
 
-$(EXE): noaa-client.go lib.go
+$(EXE): noaa-client.go lib.go util.go types_input.go types_output.go
 	@$(GoCmd) build -v -o $(EXE)
 
 analyze:
