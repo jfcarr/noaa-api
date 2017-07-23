@@ -16,5 +16,7 @@ func main() {
 
 	formattedResult := parseResults(results)
 
-	displayResults(formattedResult)
+	// displayResults(formattedResult)
+
+	writeJSON(formattedResult)
 }
