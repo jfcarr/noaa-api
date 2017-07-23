@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -8,75 +9,7 @@ import (
 	"net/http"
 )
 
-type forecastRequest struct {
-	Latitude, Longitude                                           float32
-	Product, Begin, End                                           string
-	MaxTemperature, MinTemperature, ProbabilityOfPrecip, SkyCover string
-}
 
-type dwml struct {
-	Head struct {
-		Product struct {
-			OperationalMode string `xml:"operational-mode,attr"`
-			Title           string `xml:"title"`
-			Category        string `xml:"category"`
-		} `xml:"product"`
-	} `xml:"head"`
-	Data struct {
-		Location struct {
-			LocationKey string `xml:"location-key"`
-			Point       struct {
-				Latitude  string `xml:"latitude,attr"`
-				Longitude string `xml:"longitude,attr"`
-			} `xml:"point"`
-		} `xml:"location"`
-		MoreWeatherInformation struct {
-			ApplicableLocation string `xml:"applicable-location,attr"`
-			Value              string `xml:",chardata"`
-		} `xml:"moreWeatherInformation"`
-		TimeLayouts []struct {
-			LayoutKey       string   `xml:"layout-key"`
-			StartValidTimes []string `xml:"start-valid-time"`
-			EndValidTimes   []string `xml:"end-valid-time"`
-		} `xml:"time-layout"`
-		Parameters struct {
-			ApplicableLocation string `xml:"applicable-location,attr"`
-			Temperatures       []struct {
-				Type       string   `xml:"type,attr"`
-				Units      string   `xml:"units,attr"`
-				TimeLayout string   `xml:"time-layout,attr"`
-				Name       string   `xml:"name"`
-				Values     []string `xml:"value"`
-			} `xml:"temperature"`
-			ProbabilityOfPrecipitation struct {
-				Type       string   `xml:"type,attr"`
-				Units      string   `xml:"units,attr"`
-				TimeLayout string   `xml:"time-layout,attr"`
-				Name       string   `xml:"name"`
-				Values     []string `xml:"value"`
-			} `xml:"probability-of-precipitation"`
-			CloudCoverAmount struct {
-				Type       string   `xml:"type,attr"`
-				Units      string   `xml:"units,attr"`
-				TimeLayout string   `xml:"time-layout,attr"`
-				Name       string   `xml:"name"`
-				Values     []string `xml:"value"`
-			} `xml:"cloud-amount"`
-		} `xml:"parameters"`
-	} `xml:"data"`
-}
-
-func appendCSVString(parentString string, value string) string {
-	if value != "" {
-		if parentString == "" {
-			parentString = value
-		} else {
-			parentString += "," + value
-		}
-	}
-
-	return parentString
-}
 
 func callService(fr forecastRequest) string {
 
@@ -106,35 +39,6 @@ func parseResults(inputXML string) dwml {
 	xml.Unmarshal([]byte(inputXML), &result)
 
 	return result
-}
-
-func getStartStop(formattedResult dwml, layoutKey string, offset int) (string, string) {
-	var returnStart string
-	var returnEnd string
-
-	var currentOffset int
-
-	for _, timeLayout := range formattedResult.Data.TimeLayouts {
-		if timeLayout.LayoutKey == layoutKey {
-			currentOffset = 0
-			for _, startTime := range timeLayout.StartValidTimes {
-				if currentOffset == offset {
-					returnStart = startTime
-					break
-				}
-				currentOffset++
-			}
-			currentOffset = 0
-			for _, endTime := range timeLayout.EndValidTimes {
-				if currentOffset == offset {
-					returnEnd = endTime
-					break
-				}
-				currentOffset++
-			}
-		}
-	}
-	return returnStart, returnEnd
 }
 
 func displayResults(formattedResult dwml) {
@@ -179,4 +83,59 @@ func displayResults(formattedResult dwml) {
 		fmt.Printf(" Value: %s (%s)\n", cloudValue, startTime)
 		currentOffset++
 	}
+}
+
+func writeJSON(formattedResult dwml) {
+	var currentOffset int
+
+	var formattedForecast forecast
+
+	formattedForecast.Title = formattedResult.Head.Product.Title
+	formattedForecast.MoreInformation = formattedResult.Data.MoreWeatherInformation.Value
+	for _, temperature := range formattedResult.Data.Parameters.Temperatures {
+		if temperature.Type == "maximum" {
+			currentOffset = 0
+			for _, tempValue := range temperature.Values {
+				startTime, endTime := getStartStop(formattedResult, temperature.TimeLayout, currentOffset)
+				formattedForecast.DailyMaxTemperature =
+					append(formattedForecast.DailyMaxTemperature, dailyMaxTemperature{StartDate: startTime, EndDate: endTime, Value: tempValue})
+				currentOffset++
+			}
+		}
+		if temperature.Type == "minimum" {
+			currentOffset = 0
+			for _, tempValue := range temperature.Values {
+				startTime, endTime := getStartStop(formattedResult, temperature.TimeLayout, currentOffset)
+				formattedForecast.DailyMinTemperature =
+					append(formattedForecast.DailyMinTemperature, dailyMinTemperature{StartDate: startTime, EndDate: endTime, Value: tempValue})
+				currentOffset++
+			}
+		}
+	}
+
+	probabilityOfPrecip := formattedResult.Data.Parameters.ProbabilityOfPrecipitation
+	currentOffset = 0
+	for _, popValue := range probabilityOfPrecip.Values {
+		startTime, endTime := getStartStop(formattedResult, probabilityOfPrecip.TimeLayout, currentOffset)
+		formattedForecast.ProbabilityOfPrecipitation =
+			append(formattedForecast.ProbabilityOfPrecipitation, probabilityOfPrecipitation{StartDate: startTime, EndDate: endTime, Value: popValue})
+		currentOffset++
+	}
+
+	cloudCover := formattedResult.Data.Parameters.CloudCoverAmount
+	currentOffset = 0
+	for _, cloudValue := range cloudCover.Values {
+		startTime, endTime := getStartStop(formattedResult, cloudCover.TimeLayout, currentOffset)
+		_ = endTime // suppress error for the unused endTime
+		formattedForecast.CloudCoverAmount =
+			append(formattedForecast.CloudCoverAmount, cloudCoverAmount{StartDate: startTime, Value: cloudValue})
+		currentOffset++
+	}
+
+	b, err := json.MarshalIndent(formattedForecast, "", "  ")
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	stringTemp := string(b)
+	fmt.Println(stringTemp)
 }
