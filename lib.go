@@ -30,6 +30,10 @@ type dwml struct {
 				Longitude string `xml:"longitude,attr"`
 			} `xml:"point"`
 		} `xml:"location"`
+		MoreWeatherInformation struct {
+			ApplicableLocation string `xml:"applicable-location,attr"`
+			Value              string `xml:",chardata"`
+		} `xml:"moreWeatherInformation"`
 		TimeLayouts []struct {
 			LayoutKey       string   `xml:"layout-key"`
 			StartValidTimes []string `xml:"start-valid-time"`
@@ -44,7 +48,7 @@ type dwml struct {
 				Name       string   `xml:"name"`
 				Values     []string `xml:"value"`
 			} `xml:"temperature"`
-			ProbabilityOfPrecip struct {
+			ProbabilityOfPrecipitation struct {
 				Type       string   `xml:"type,attr"`
 				Units      string   `xml:"units,attr"`
 				TimeLayout string   `xml:"time-layout,attr"`
@@ -125,6 +129,9 @@ func displayResults(formattedResult dwml) {
 	var currentOffset int
 
 	fmt.Printf("%s\n", formattedResult.Head.Product.Title)
+	fmt.Printf("More info: %s (%s)\n",
+		formattedResult.Data.MoreWeatherInformation.Value,
+		formattedResult.Data.MoreWeatherInformation.ApplicableLocation)
 
 	fmt.Printf("\n")
 
@@ -140,7 +147,7 @@ func displayResults(formattedResult dwml) {
 
 	fmt.Printf("\n")
 
-	probabilityOfPrecip := formattedResult.Data.Parameters.ProbabilityOfPrecip
+	probabilityOfPrecip := formattedResult.Data.Parameters.ProbabilityOfPrecipitation
 	fmt.Printf("%s (%s):\n", probabilityOfPrecip.Name, probabilityOfPrecip.TimeLayout)
 	currentOffset = 0
 	for _, popValue := range probabilityOfPrecip.Values {
