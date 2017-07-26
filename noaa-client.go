@@ -5,18 +5,18 @@ func main() {
 		Latitude:            39.44,
 		Longitude:           -84.3,
 		Product:             "time-series",
-		Begin:               "2017-07-24T00:00:00",
-		End:                 "2017-07-24T20:00:00",
+		Begin:               "2017-07-26T00:00:00",
+		End:                 "2017-07-26T20:00:00",
 		MaxTemperature:      "maxt",
 		MinTemperature:      "mint",
 		ProbabilityOfPrecip: "pop12",
 		SkyCover:            "sky"}
 
-	results := callService(fr)
-
+	results := fr.callService()
+	
 	formattedResult := parseResults(results)
 
-	// displayResults(formattedResult)
+	// formattedResult.displayResults()
 
-	writeJSON(formattedResult)
+	formattedResult.writeJSON()
 }
