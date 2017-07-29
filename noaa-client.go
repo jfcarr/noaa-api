@@ -24,8 +24,6 @@ func main() {
 		"Ending date and time of forecast, e.g., 2017-07-30T00:00:00 (default to max)")
 	flag.Parse()
 
-	// "2017-07-29T00:00:00"
-
 	fr := forecastRequest{
 		Latitude:            float32(latitudeFlag),
 		Longitude:           float32(longitudeFlag),
