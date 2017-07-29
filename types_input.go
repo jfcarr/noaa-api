@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -14,7 +15,7 @@ type forecastRequest struct {
 	MaxTemperature, MinTemperature, ProbabilityOfPrecip, SkyCover string
 }
 
-func (fr forecastRequest) callService() string {
+func (fr forecastRequest) callService() (string, error) {
 	queryString := fmt.Sprintf("lat=%f&lon=%f&product=%s&begin=%s&end=%s&maxt=%s&mint=%s&pop12=%s&sky=%s",
 		fr.Latitude, fr.Longitude, fr.Product, fr.Begin, fr.End, fr.MaxTemperature, fr.MinTemperature, fr.ProbabilityOfPrecip, fr.SkyCover)
 
@@ -24,15 +25,17 @@ func (fr forecastRequest) callService() string {
 	res, err := http.Get(requestString)
 	if err != nil {
 		log.Fatal(err)
+		return "", errors.New("Error calling NOAA REST service.")
 	}
 
 	results, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		log.Fatal(err)
+		return "", errors.New("Error reading service call results.")
 	}
 
-	return fmt.Sprintf("%s", results)
+	return fmt.Sprintf("%s", results), nil
 }
 
 type dwml struct {

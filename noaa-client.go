@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 func main() {
@@ -35,11 +36,15 @@ func main() {
 		ProbabilityOfPrecip: "pop12",
 		SkyCover:            "sky"}
 
-	results := fr.callService()
+	results, err := fr.callService()
+	if err != nil {
+		fmt.Println(err)
+	} else {
 
-	formattedResult := parseResults(results)
+		formattedResult := parseResults(results)
 
-	// formattedResult.displayResults()
+		// formattedResult.displayResults()
 
-	formattedResult.writeJSON()
+		formattedResult.writeJSON()
+	}
 }
