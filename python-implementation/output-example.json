@@ -1,0 +1,76 @@
+{
+	"cloudCover": [
+		{
+			"dateTime": "2020-05-17T23:00:00-04:00",
+			"percentage": 90
+		},
+		{
+			"dateTime": "2020-05-18T02:00:00-04:00",
+			"percentage": 90
+		},
+		{
+			"dateTime": "2020-05-18T05:00:00-04:00",
+			"percentage": 92
+		},
+		{
+			"dateTime": "2020-05-18T08:00:00-04:00",
+			"percentage": 93
+		},
+		{
+			"dateTime": "2020-05-18T11:00:00-04:00",
+			"percentage": 94
+		},
+		{
+			"dateTime": "2020-05-18T14:00:00-04:00",
+			"percentage": 96
+		},
+		{
+			"dateTime": "2020-05-18T17:00:00-04:00",
+			"percentage": 94
+		},
+		{
+			"dateTime": "2020-05-18T20:00:00-04:00",
+			"percentage": 95
+		},
+		{
+			"dateTime": "2020-05-18T23:00:00-04:00",
+			"percentage": 91
+		}
+	],
+	"precipitationProbability": [
+		{
+			"startDateTime": "2020-05-17T20:00:00-04:00",
+			"endDateTime": "2020-05-18T08:00:00-04:00",
+			"percentage": 60
+		},
+		{
+			"startDateTime": "2020-05-18T08:00:00-04:00",
+			"endDateTime": "2020-05-18T20:00:00-04:00",
+			"percentage": 95
+		},
+		{
+			"startDateTime": "2020-05-18T20:00:00-04:00",
+			"endDateTime": "2020-05-19T08:00:00-04:00",
+			"percentage": 96
+		}
+	],
+	"maxTemperature": [
+		{
+			"startDateTime": "2020-05-18T08:00:00-04:00",
+			"endDateTime": "2020-05-18T20:00:00-04:00",
+			"value": 74
+		}
+	],
+	"minTemperature": [
+		{
+			"startDateTime": "2020-05-17T20:00:00-04:00",
+			"endDateTime": "2020-05-18T09:00:00-04:00",
+			"value": 66
+		},
+		{
+			"startDateTime": "2020-05-18T20:00:00-04:00",
+			"endDateTime": "2020-05-19T09:00:00-04:00",
+			"value": 60
+		}
+	]
+}
